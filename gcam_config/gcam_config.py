@@ -51,14 +51,13 @@ def generate_batch_permutations(base_config, batch_file):
 class GcamConfig:
     def __init__(self, config_in):
         parser = ET.XMLParser(strip_cdata=False)
-        self.config_file = config_in
-        self.config_dir = os.path.join(os.path.abspath(os.path.dirname(self.config_file)))
+        self.config_dir = os.getcwd()
         self.config_doc = ET.parse(config_in, parser)
     
     def __hash__(self):
         digest = 0
         x = xxh32(seed=SEED)
-        x.update(hash_to_bytes(hash(FileType(self.config_file))))
+        x.update(ET.tostring(self.config_doc))
         root = self.config_doc.getroot()
         scn_components = root.find("./ScenarioComponents")
         for component in scn_components:
