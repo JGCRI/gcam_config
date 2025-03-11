@@ -9,6 +9,7 @@ from xxhash import xxh32
 import os
 from scalable.caching import *
 from copy import deepcopy
+from io import BytesIO
 
 def hash_to_bytes(hash):
     return hash.to_bytes((hash.bit_length() + 7) // 8, 'big')
@@ -81,6 +82,12 @@ class GcamConfig:
         x.update(hash_to_bytes(hash(ObjectType(dict(input_file.attrib)))))
         digest = x.intdigest()
         return digest
+
+    def __getstate__(self):
+        return dict(config_bytes = BytesIO(ET.tostring(self.config_doc)))
+
+    def __setstate__(self, state):
+        self.__init__(state['config_bytes'])
 
     def save_xml(self, out_path):
         self.config_doc.write(out_path)
